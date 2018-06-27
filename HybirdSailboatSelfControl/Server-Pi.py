@@ -11,8 +11,8 @@ import sys
 import os
 import time
 import numpy as np
-import xlwt
-import datetime
+# import xlwt
+# import datetime
 # import matplotlib.pyplot as plt
 from Adafruit_BNO055 import BNO055
 os.system('sudo pigpiod')
@@ -90,10 +90,10 @@ while True:
             
             elif Mode == 'Mode1': # 自动巡航
                 print('Auto')
-                wb= xlwt.Workbook()
-                ws=wb.add_sheet('Test')
-                #write head of the table
-                ws.write(0,0,'heading');ws.write(0,1,'speed_left');ws.write(0,2,'speed_right');ws.write(0,3,'sail angle');ws.write(0,4,'rudder angle');ws.write(0,5,'Bus Voltage');ws.write(0,6,'Bus Current');ws.write(0,7,'Power');ws.write(0,8,'Shunt Voltage');ws.write(0,9,'Time-hour');ws.write(0,10,'Time-minute');ws.write(0,11,'Time-second');
+                # wb= xlwt.Workbook()
+                # ws=wb.add_sheet('Test')
+                # #write head of the table
+                # ws.write(0,0,'heading');ws.write(0,1,'speed_left');ws.write(0,2,'speed_right');ws.write(0,3,'sail angle');ws.write(0,4,'rudder angle');ws.write(0,5,'Bus Voltage');ws.write(0,6,'Bus Current');ws.write(0,7,'Power');ws.write(0,8,'Shunt Voltage');ws.write(0,9,'Time-hour');ws.write(0,10,'Time-minute');ws.write(0,11,'Time-second');
                 i=1
                 C_LM_copy, C_RM_copy, C_R_copy, C_S_copy=0,0,0,0
                 try:
@@ -115,6 +115,17 @@ while True:
                         recv_data=conn.recv(1024)  # 接收conn连接线路，并指定缓存该线路的1024
                         recv_data=(str(recv_data,encoding='utf8').split(' '))
                         C_LM, C_RM, C_R, C_S = recv_data
+
+##                        if int(C_LM_recv) == 0:
+##                            C_LM = 1500
+##                        elif int(C_LM_recv) == 1:
+##                            C_LM = 1560
+##
+##                        if int(C_RM_recv) == 0:
+##                            C_RM = 1500
+##                        elif int(C_RM_recv) == 1:
+##                            C_RM = 1560
+                        
                         C_LM, C_RM, C_R, C_S =int(C_LM), int(C_RM), int(C_R), int(C_S)
                         if C_LM!=C_LM_copy:
                             newboat.motorruning(21,C_LM)
@@ -126,29 +137,29 @@ while True:
                             newboat.servoturning(16,C_S)
                         C_LM_copy, C_RM_copy, C_R_copy, C_S_copy=C_LM, C_RM, C_R, C_S
             
-                        time.sleep(0.3)
+                        time.sleep(0.2)
                                     
                         # 发送消息
-                        send_data=heading
-                        print("IMU angle：%s" % send_data)
-                        print('Angles:',newboat.getangle())
+                        
+                        send_data=str(round(heading,2))+' '+str(newboat.getspeed()[0])+' '+str(newboat.getspeed()[1])+' '+str(newboat.getangle()[0])+' '+str(newboat.getangle()[1])+' '+str(round(ina.voltage(),2))+' '+str(round(ina.current(),2))+' '+str(round(ina.power(),2))+' '+str(round(ina.shunt_voltage(),2))
+                        #print("IMU angle：%s" % str(heading))
+                        #print('Angles:',newboat.getangle())
                         conn.send(bytes(str(send_data),encoding='utf8'))  # 使用conn线路，发送消息
-
-                        # Print everything out.
-                        ws.write(i,0,'{0:0.2F}'.format(heading))
-                        ws.write(i,1,'{0:0.2F}'.format(newboat.getspeed()[1]))
-                        ws.write(i,2,'{0:0.2F}'.format(newboat.getspeed()[0]))
-                        ws.write(i,3,'{0:0.2F}'.format(newboat.getangle()[0]))
-                        ws.write(i,4,'{0:0.2F}'.format(newboat.getangle()[1]))
-                        ws.write(i,5,'{0:0.2f}V'.format(ina.voltage()))
-                        ws.write(i,6,'{0:0.2f}mA'.format(ina.current()))
-                        ws.write(i,7,'{0:0.2f}mW'.format(ina.power()))
-                        ws.write(i,8,'{0:0.2f}mV'.format(ina.shunt_voltage()))
-                        t=datetime.datetime.now()
-                        ws.write(i,9,str(t.hour))
-                        ws.write(i,10,str(t.minute))
-                        ws.write(i,11,str(t.second))
-                        print('(Voltage, Current): (',round(ina.voltage(),3),',', round(ina.current(),3),')')
+                        # # Print everything out.
+                        # ws.write(i,0,'{0:0.2F}'.format(heading))
+                        # ws.write(i,1,'{0:0.2F}'.format(newboat.getspeed()[1]))
+                        # ws.write(i,2,'{0:0.2F}'.format(newboat.getspeed()[0]))
+                        # ws.write(i,3,'{0:0.2F}'.format(newboat.getangle()[0]))
+                        # ws.write(i,4,'{0:0.2F}'.format(newboat.getangle()[1]))
+                        # ws.write(i,5,'{0:0.2f}V'.format(ina.voltage()))
+                        # ws.write(i,6,'{0:0.2f}mA'.format(ina.current()))
+                        # ws.write(i,7,'{0:0.2f}mW'.format(ina.power()))
+                        # ws.write(i,8,'{0:0.2f}mV'.format(ina.shunt_voltage()))
+                        # t=datetime.datetime.now()
+                        # ws.write(i,9,str(t.hour))
+                        # ws.write(i,10,str(t.minute))
+                        # ws.write(i,11,str(t.second))
+                        # print('(Voltage, Current): (',round(ina.voltage(),3),',', round(ina.current(),3),')')
                         i+=1
                         #newTime = time.clock()
                         #stime = np.append(stime,newTime)
@@ -157,8 +168,8 @@ while True:
                 
                 except KeyboardInterrupt:
                     time.sleep(1)
-                    print('\nSaving data...')
-                    wb.save('%s .xls' % t)
+                    # print('\nSaving data...')
+                    # wb.save('%s .xls' % t)
                     print('Change Mode in client or Ctrl-C to exit')
                     newboat.motorruning(20,1500)
                     newboat.motorruning(21,1500)
@@ -232,7 +243,7 @@ while True:
                             time.sleep(0.02)
                             newboat.motorruning(21,speed1)
                             newboat.motorruning(20,speed2)
-                            #print('MoterSpeed1'+str(speed1))
+                            print(newboat.getspeed())
                             #print('MoterSpeed2'+str(speed2))
                         else:
                             sailangle=70
